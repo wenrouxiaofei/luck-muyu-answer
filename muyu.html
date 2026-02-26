@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>电子木鱼｜敲击得功德</title>
+  <style>
+    /* 全局变量，控制明暗模式，与答案之书风格统一 */
+    :root {
+      --bg-color: #f7f0e0; /* 浅色背景（纸张色） */
+      --text-color: #333; /* 主文字色 */
+      --tip-color: #888; /* 提示文字色 */
+      --btn-bg: #8b5a2b; /* 按钮背景（与答案之书一致） */
+      --btn-active: #704920; /* 按钮按压色 */
+      --wooden-fish-bg: #b8860b; /* 木鱼主体颜色（深木色，贴近真实木鱼） */
+      --wooden-fish-shadow: 0 8px 16px rgba(184, 134, 11, 0.25); /* 木鱼阴影，更有立体感 */
+      --wooden-fish-dark: #8b6914; /* 木鱼暗部颜色，增强轮廓感 */
+      --stick-color: #8b5a2b; /* 小棍子颜色 */
+      --merit-color: #e63946; /* 功德文字颜色 */
+      --transition: all 0.2s ease; /* 统一过渡效果 */
+      --back-btn-bg: #000; /* 返回按钮黑底 */
+      --back-btn-text: #fff; /* 返回按钮白字 */
+      --back-btn-active: #333; /* 返回按钮按压色 */
+    }
+
+    /* 暗黑模式变量，同步适配木鱼样式 */
+    .dark-mode {
+      --bg-color: #1e1e24;
+      --text-color: #f5f5f5;
+      --tip-color: #aaa;
+      --btn-bg: #3a3a42;
+      --btn-active: #55555f;
+      --wooden-fish-bg: #7a5c29; /* 暗黑模式木鱼颜色（深棕木色） */
+      --wooden-fish-shadow: 0 8px 16px rgba(122, 92, 41, 0.2);
+      --wooden-fish-dark: #5c451e; /* 暗黑模式木鱼暗部 */
+      --stick-color: #a67c52; /* 暗黑模式小棍子颜色 */
+      --merit-color: #f77f00; /* 暗黑模式功德文字颜色 */
+      --back-btn-bg: #000;
+      --back-btn-text: #fff;
+      --back-btn-active: #555;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      background: var(--bg-color);
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 0 20px;
+      text-align: center;
+      transition: var(--transition);
+      overflow: hidden; /* 禁止页面滚动 */
+      position: relative;
+    }
+
+    /* 顶部提示语 */
+    .tip {
+      font-size: 16px;
+      color: var(--tip-color);
+      margin-bottom: 30px;
+      transition: var(--transition);
+    }
+
+    /* 木鱼容器（核心） */
+    .fish-container {
+      position: relative;
+      width: 280px;
+      height: 220px;
+      margin-bottom: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* 木鱼样式（优化后，还原真实木鱼轮廓，摒弃面包感） */
+    .wooden-fish {
+      width: 260px;
+      height: 160px;
+      /* 调整圆角，中间鼓、两端略收，贴合木鱼真实形状 */
+      border-radius: 60% 60% 40% 40%;
+      background: linear-gradient(145deg, var(--wooden-fish-bg), var(--wooden-fish-dark)); /* 木纹渐变，增强质感 */
+      box-shadow: var(--wooden-fish-shadow);
+      position: relative;
+      transition: var(--transition);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer; /* 提示木鱼可点击 */
+    }
+
+    /* 木鱼顶部凹陷（敲击部位，增强真实感） */
+    .wooden-fish::before {
+      content: "";
+      position: absolute;
+      top: 25px;
+      width: 160px;
+      height: 80px;
+      border-radius: 50% 50% 45% 45%;
+      background: rgba(0,0,0,0.08); /* 凹陷阴影，模拟木鱼敲击槽 */
+    }
+
+    /* 木鱼木纹（横向纹理，避免单调，更像真实木头） */
+    .wooden-fish::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 60% 60% 40% 40%;
+      background: repeating-linear-gradient(
+        transparent,
+        transparent 8px,
+        rgba(0,0,0,0.05) 8px,
+        rgba(0,0,0,0.05) 10px
+      );
+      pointer-events: none; /* 不影响点击 */
+    }
+
+    /* 小棍子样式（微调位置，贴合木鱼敲击角度） */
+    .stick {
+      position: absolute;
+      right: -15px;
+      top: 45%;
+      transform: translateY(-50%) rotate(20deg);
+      width: 85px;
+      height: 8px;
+      background: linear-gradient(90deg, var(--stick-color), #6d4c2f); /* 棍子渐变，更真实 */
+      border-radius: 4px;
+      cursor: pointer;
+      transition: var(--transition);
+      z-index: 10;
+    }
+
+    /* 小棍子敲击时摆动动画 */
+    .stick.active {
+      transform: translateY(-50%) rotate(-10deg);
+    }
+
+    /* 木鱼敲击时缩放动画（微调幅度，更自然） */
+    .wooden-fish.active {
+      transform: scale(0.97);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    /* 功德+1飘出文字（初始隐藏） */
+    .merit {
+      position: absolute;
+      top: -30px;
+      font-size: 20px;
+      color: var(--merit-color);
+      font-weight: bold;
+      opacity: 0;
+      transition: all 0.8s ease;
+      z-index: 20;
+    }
+
+    /* 功德飘出动画 */
+    .merit.show {
+      opacity: 1;
+      transform: translateY(-40px);
+    }
+
+    /* 功德计数区 */
+    .merit-count {
+      font-size: 24px;
+      color: var(--text-color);
+      font-weight: bold;
+      margin-bottom: 30px;
+    }
+
+    /* 明暗模式切换按钮（与答案之书一致，固定右上角） */
+    .mode-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--btn-bg);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: var(--transition);
+    }
+
+    .mode-btn:active {
+      transform: scale(0.9);
+      background: var(--btn-active);
+    }
+
+    /* 返回按钮样式（黑底白字，固定左上角，适配手机） */
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--back-btn-bg);
+      color: var(--back-btn-text);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: var(--transition);
+      z-index: 30; /* 确保在最上层，不被遮挡 */
+    }
+
+    .back-btn:active {
+      transform: scale(0.9);
+      background: var(--back-btn-active);
+    }
+  </style>
+</head>
+<body>
+  <!-- 返回按钮：点击返回主页面index.html -->
+  <button class="back-btn" id="backBtn" title="返回主页面" onclick="window.location.href='index.html'">←</button>
+  <!-- 明暗模式切换按钮 -->
+  <button class="mode-btn" id="modeBtn" title="切换暗黑模式">🌙</button>
+
+  <!-- 提示语：修改为提示点击木鱼或小棍子 -->
+  <div class="tip">点击木鱼或小棍子，即可敲击得功德</div>
+
+  <!-- 木鱼容器（木鱼+小棍子+功德飘字） -->
+  <div class="fish-container">
+    <div class="wooden-fish" id="woodenFish"></div>
+    <div class="stick" id="stick"></div>
+    <div class="merit" id="merit">功德+1</div>
+  </div>
+
+  <!-- 功德计数 -->
+  <div class="merit-count" id="meritCount">功德：0</div>
+
+  <script>
+    // 1. 获取DOM元素
+    const stick = document.getElementById('stick');
+    const woodenFish = document.getElementById('woodenFish');
+    const merit = document.getElementById('merit');
+    const meritCount = document.getElementById('meritCount');
+    const modeBtn = document.getElementById('modeBtn');
+    const backBtn = document.getElementById('backBtn');
+
+    // 2. 核心变量：功德计数（初始为0）
+    let meritNum = 0;
+
+    // 3. 敲击木鱼核心逻辑（封装为函数，供木鱼和小棍子共用）
+    function tapWoodenFish() {
+      // 触发小棍子摆动动画
+      stick.classList.add('active');
+      // 触发木鱼缩放动画
+      woodenFish.classList.add('active');
+      // 触发功德+1飘出动画
+      merit.classList.add('show');
+      // 功德计数累加
+      meritNum++;
+      // 更新底部计数显示
+      meritCount.textContent = `功德：${meritNum}`;
+
+      // 移除动画类（避免重复点击无效果）
+      setTimeout(() => {
+        stick.classList.remove('active');
+        woodenFish.classList.remove('active');
+      }, 200);
+
+      // 移除功德飘字（动画结束后隐藏）
+      setTimeout(() => {
+        merit.classList.remove('show');
+      }, 800);
+    }
+
+    // 4. 给小棍子绑定点击事件
+    stick.addEventListener('click', tapWoodenFish);
+    // 给木鱼绑定点击事件（实现点击木鱼也能触发）
+    woodenFish.addEventListener('click', tapWoodenFish);
+
+    // 5. 明暗模式切换（与答案之书逻辑一致，自动检测时间+手动切换）
+    let isDarkMode = false;
+
+    // 自动检测时间，判断是否开启暗黑模式（7:00-18:00浅色，18:00-次日7:00深色）
+    function autoDetectDarkMode() {
+      const now = new Date();
+      const hour = now.getHours();
+      // 判断当前时段，夜间开启暗黑模式
+      if (hour >= 18 || hour < 7) {
+        isDarkMode = true;
+        document.body.classList.add('dark-mode');
+        modeBtn.textContent = '☀️'; // 夜间模式按钮显示太阳图标
+      } else {
+        isDarkMode = false;
+        document.body.classList.remove('dark-mode');
+        modeBtn.textContent = '🌙'; // 白天模式按钮显示月亮图标
+      }
+    }
+
+    // 页面加载时自动执行时间检测，切换对应模式
+    autoDetectMode();
+
+    // 手动切换暗黑模式（保留原有功能，可覆盖自动模式）
+    modeBtn.addEventListener('click', () => {
+      isDarkMode = !isDarkMode;
+      document.body.classList.toggle('dark-mode', isDarkMode);
+      modeBtn.textContent = isDarkMode ? '☀️' : '🌙';
+    });
+  </script>
+</body>
+</html>

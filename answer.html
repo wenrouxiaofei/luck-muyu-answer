@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>答案之书｜心中有疑，书中有解</title>
+  <style>
+    :root {
+      --bg-color: #f7f0e0;
+      --text-color: #333;
+      --book-bg: #fff;
+      --book-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      --answer-color: #8b5a2b;
+      --btn-bg: #8b5a2b;
+      --btn-active: #704920;
+      --transition: all 0.2s ease;
+      /* 返回按钮变量，与木鱼统一 */
+      --back-btn-bg: #000;
+      --back-btn-text: #fff;
+      --back-btn-active: #333;
+    }
+
+    .dark-mode {
+      --bg-color: #1e1e24;
+      --text-color: #f5f5f5;
+      --book-bg: #2d2d37;
+      --book-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      --answer-color: #f77f00;
+      --btn-bg: #3a3a42;
+      --btn-active: #55555f;
+      --back-btn-bg: #000;
+      --back-btn-text: #fff;
+      --back-btn-active: #555;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      background: var(--bg-color);
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 返回按钮（与木鱼完全一致） */
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--back-btn-bg);
+      color: var(--back-btn-text);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: var(--transition);
+      z-index: 30;
+    }
+
+    .back-btn:active {
+      transform: scale(0.9);
+      background: var(--back-btn-active);
+    }
+
+    /* 暗黑模式按钮 */
+    .mode-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--btn-bg);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: var(--transition);
+      z-index: 20;
+    }
+
+    .mode-btn:active {
+      transform: scale(0.9);
+      background: var(--btn-active);
+    }
+
+    .tip {
+      font-size: 16px;
+      color: var(--text-color);
+      margin-bottom: 30px;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    /* 答案书本卡片 */
+    .book-card {
+      width: 100%;
+      max-width: 350px;
+      height: 220px;
+      background: var(--book-bg);
+      border-radius: 12px;
+      box-shadow: var(--book-shadow);
+      padding: 35px 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 35px;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 书本翻页装饰 */
+    .book-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 0 12px 0 0;
+      background: rgba(0,0,0,0.05);
+    }
+
+    .answer-text {
+      font-size: 22px;
+      color: var(--answer-color);
+      font-weight: bold;
+      text-align: center;
+      line-height: 1.6;
+      letter-spacing: 1px;
+    }
+
+    /* 提问按钮 */
+    .ask-btn {
+      width: 100%;
+      max-width: 350px;
+      height: 55px;
+      background: var(--btn-bg);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .ask-btn:active {
+      transform: scale(0.97);
+      background: var(--btn-active);
+    }
+  </style>
+</head>
+<body>
+  <!-- 返回按钮：核心新增 -->
+  <button class="back-btn" onclick="window.location.href='index.html'">←</button>
+  <!-- 暗黑模式按钮 -->
+  <button class="mode-btn" id="modeBtn">🌙</button>
+
+  <div class="tip">心中默念你的问题，点击下方按钮，获取答案</div>
+
+  <div class="book-card">
+    <div class="answer-text" id="answerText">点击按钮，开启答案</div>
+  </div>
+
+  <button class="ask-btn" id="askBtn">
+    📖 翻开答案之书
+  </button>
+
+  <script>
+    // 1. 答案库（覆盖多种场景）
+    const answers = [
+      "这件事，你不妨大胆去做",
+      "时机未到，再等等看",
+      "答案是肯定的，放心前行",
+      "暂时搁置，会有更好的选择",
+      "坚持下去，胜利就在前方",
+      "不必纠结，随心而动就好",
+      "贵人将至，你会得到帮助",
+      "此路不通，换个方向试试",
+      "付出终有回报，耐心等待",
+      "相信自己的直觉，那是对的",
+      "现在的犹豫，会成为未来的遗憾",
+      "一切都会好起来的，别担心",
+      "适合行动，今日就是吉日",
+      "保持低调，避免不必要的麻烦",
+      "你的努力，有人看在眼里"
+    ];
+
+    // 2. 打字机效果函数
+    function typeWriter(text, ele, speed = 80) {
+      let i = 0;
+      ele.textContent = '';
+      const timer = setInterval(() => {
+        if (i < text.length) {
+          ele.textContent += text.charAt(i);
+          i++;
+        } else {
+          clearInterval(timer);
+        }
+      }, speed);
+    }
+
+    // 3. 随机获取答案
+    function getRandomAnswer() {
+      const randomIdx = Math.floor(Math.random() * answers.length);
+      return answers[randomIdx];
+    }
+
+    // 4. 按钮点击事件
+    const askBtn = document.getElementById('askBtn');
+    const answerText = document.getElementById('answerText');
+
+    askBtn.addEventListener('click', () => {
+      answerText.textContent = '';
+      const answer = getRandomAnswer();
+      typeWriter(answer, answerText);
+      // 按钮短暂禁用，避免重复点击
+      askBtn.disabled = true;
+      setTimeout(() => {
+        askBtn.disabled = false;
+      }, 1500);
+    });
+
+    // 5. 暗黑模式切换（与其他页面统一）
+    let isDarkMode = false;
+    const modeBtn = document.getElementById('modeBtn');
+
+    function autoDetectMode() {
+      const hour = new Date().getHours();
+      if (hour >= 18 || hour < 7) {
+        isDarkMode = true;
+        document.body.classList.add('dark-mode');
+        modeBtn.textContent = '☀️';
+      }
+    }
+    autoDetectMode();
+
+    modeBtn.addEventListener('click', () => {
+      isDarkMode = !isDarkMode;
+      document.body.classList.toggle('dark-mode', isDarkMode);
+      modeBtn.textContent = isDarkMode ? '☀️' : '🌙';
+    });
+  </script>
+</body>
+</html>

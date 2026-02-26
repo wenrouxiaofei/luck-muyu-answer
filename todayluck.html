@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>今日运势｜2026马年</title>
+  <style>
+    :root {
+      --bg-color: #f7f0e0;
+      --text-color: #333;
+      --card-bg: #fff;
+      --card-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      --btn-bg: #8b5a2b;
+      --btn-active: #704920;
+      --luck-title: #e63946;
+      --transition: all 0.2s ease;
+      /* 返回按钮变量，与木鱼统一 */
+      --back-btn-bg: #000;
+      --back-btn-text: #fff;
+      --back-btn-active: #333;
+    }
+
+    .dark-mode {
+      --bg-color: #1e1e24;
+      --text-color: #f5f5f5;
+      --card-bg: #2d2d37;
+      --card-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      --btn-bg: #3a3a42;
+      --btn-active: #55555f;
+      --luck-title: #f77f00;
+      --back-btn-bg: #000;
+      --back-btn-text: #fff;
+      --back-btn-active: #555;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 100vw;
+      min-height: 100vh;
+      background: var(--bg-color);
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    /* 返回按钮（与木鱼完全一致） */
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--back-btn-bg);
+      color: var(--back-btn-text);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: var(--transition);
+      z-index: 30;
+    }
+
+    .back-btn:active {
+      transform: scale(0.9);
+      background: var(--back-btn-active);
+    }
+
+    /* 暗黑模式按钮 */
+    .mode-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--btn-bg);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: var(--transition);
+      z-index: 20;
+    }
+
+    .mode-btn:active {
+      transform: scale(0.9);
+      background: var(--btn-active);
+    }
+
+    .page-title {
+      font-size: 24px;
+      color: var(--text-color);
+      margin: 70px 0 30px;
+      font-weight: bold;
+    }
+
+    /* 运势卡片 */
+    .luck-card {
+      width: 100%;
+      max-width: 350px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 30px 25px;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 30px;
+      transition: var(--transition);
+    }
+
+    .date-info {
+      font-size: 16px;
+      color: var(--text-color);
+      text-align: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .luck-type {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--luck-title);
+      margin: 15px 0 8px;
+    }
+
+    .luck-desc {
+      font-size: 15px;
+      color: var(--text-color);
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+
+    /* 刷新按钮 */
+    .refresh-btn {
+      width: 100%;
+      max-width: 350px;
+      height: 50px;
+      background: var(--btn-bg);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .refresh-btn:active {
+      transform: scale(0.97);
+      background: var(--btn-active);
+    }
+  </style>
+</head>
+<body>
+  <!-- 返回按钮：核心新增 -->
+  <button class="back-btn" onclick="window.location.href='index.html'">←</button>
+  <!-- 暗黑模式按钮 -->
+  <button class="mode-btn" id="modeBtn">🌙</button>
+
+  <h1 class="page-title">今日运势</h1>
+
+  <div class="luck-card" id="luckCard">
+    <div class="date-info" id="dateInfo"></div>
+    <div id="luckContent"></div>
+  </div>
+
+  <button class="refresh-btn" id="refreshBtn">
+    🔄 换一卦运势
+  </button>
+
+  <script>
+    // 1. 日期初始化
+    const dateInfo = document.getElementById('dateInfo');
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const day = now.getDate();
+    const week = ['日', '一', '二', '三', '四', '五', '六'];
+    const weekDay = week[now.getDay()];
+    dateInfo.textContent = `${year}年${month}月${day}日 星期${weekDay}｜丙午马年`;
+
+    // 2. 运势文案库（2026马年专属）
+    const luckLib = {
+      事业: [
+        "今日事业运势上扬，工作中易获贵人相助，马到成功。",
+        "职场有新机遇，大胆尝试可突破瓶颈，切忌犹豫不前。",
+        "今日适合沟通协作，团队项目进展顺利，效率倍增。",
+        "工作压力稍大，但你的能力足以应对，完成后有成就感。",
+        "注意细节把控，避免因粗心导致返工，稳扎稳打最佳。"
+      ],
+      财运: [
+        "今日财运亨通，正财稳定，偏财有惊喜，小投资有回报。",
+        "理财需谨慎，切勿盲目跟风，守住钱包才能财源广进。",
+        "有意外收入入账，如红包、奖金，心情会格外愉悦。",
+        "今日适合规划消费，理性支出可避免不必要的浪费。",
+        "财运平稳，宜储蓄，为未来积累资本，厚积薄发。"
+      ],
+      感情: [
+        "单身者今日桃花运旺，易遇心仪对象，主动出击有戏。",
+        "情侣间感情升温，适合约会谈心，增进彼此了解。",
+        "今日宜沟通，有矛盾可及时化解，切忌冷战伤感情。",
+        "单身者宜提升自我，魅力值上涨，自然吸引良缘。",
+        "感情稳定，平淡中见真情，珍惜当下就是最好的幸福。"
+      ],
+      健康: [
+        "今日精力充沛，适合运动锻炼，增强体质，活力满满。",
+        "注意饮食清淡，避免油腻辛辣，保护肠胃健康。",
+        "劳逸结合，避免熬夜，充足睡眠让你状态更佳。",
+        "颈椎易疲劳，多做拉伸运动，放松身心很重要。",
+        "整体健康良好，保持心情愉悦，百病不侵。"
+      ]
+    };
+
+    // 3. 随机生成运势
+    function generateLuck() {
+      let html = '';
+      Object.keys(luckLib).forEach(type => {
+        const randomDesc = luckLib[type][Math.floor(Math.random() * luckLib[type].length)];
+        html += `
+          <div class="luck-item">
+            <div class="luck-type">${type}</div>
+            <div class="luck-desc">${randomDesc}</div>
+          </div>
+        `;
+      });
+      document.getElementById('luckContent').innerHTML = html;
+    }
+
+    // 4. 暗黑模式切换（与其他页面统一）
+    let isDarkMode = false;
+    const modeBtn = document.getElementById('modeBtn');
+
+    function autoDetectMode() {
+      const hour = new Date().getHours();
+      if (hour >= 18 || hour < 7) {
+        isDarkMode = true;
+        document.body.classList.add('dark-mode');
+        modeBtn.textContent = '☀️';
+      }
+    }
+    autoDetectMode();
+
+    modeBtn.addEventListener('click', () => {
+      isDarkMode = !isDarkMode;
+      document.body.classList.toggle('dark-mode', isDarkMode);
+      modeBtn.textContent = isDarkMode ? '☀️' : '🌙';
+    });
+
+    // 5. 刷新按钮事件
+    document.getElementById('refreshBtn').addEventListener('click', generateLuck);
+
+    // 页面加载生成初始运势
+    generateLuck();
+  </script>
+</body>
+</html>
